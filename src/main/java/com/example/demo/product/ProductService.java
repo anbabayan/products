@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * Service to manage the products.
- *
  */
 @Service
 public class ProductService {
@@ -38,7 +37,11 @@ public class ProductService {
             return ResponseEntity.badRequest().body("Product is not provided.");
         }
         products.add(product);
-        return ResponseEntity.ok().body("created");
+        if (getById(product.getProductId()) != null) {
+            return ResponseEntity.ok().body("The product with id " + product.getProductId() + " is successfully created.");
+        } else {
+            return ResponseEntity.internalServerError().body("Failed to create a product");
+        }
     }
 
     /**
@@ -60,7 +63,7 @@ public class ProductService {
                 return ResponseEntity.internalServerError().body("Failed to modify the product.");
             }
         }
-        return ResponseEntity.ok().body("The product is modified");
+        return ResponseEntity.ok().body("The product is modified.");
     }
 
     /**
@@ -75,7 +78,7 @@ public class ProductService {
             products.removeIf(product -> product.getProductId().equals(id));
         }
         if (getById(id) == null) {
-            return ResponseEntity.ok().body("The product with id " + id + " is deleted");
+            return ResponseEntity.ok().body("The product with id " + id + " is deleted.");
         } else {
             return ResponseEntity.internalServerError().body("Failed to delete the product with id: " + id);
         }
@@ -93,7 +96,7 @@ public class ProductService {
         } else {
             if (!product.isPurchased()) {
                 product.setPurchased(true);
-                return ResponseEntity.ok().body("The product is purchased.");
+                return ResponseEntity.ok().body("The product is successfully purchased.");
             } else {
                 return ResponseEntity.badRequest().body("Product is already purchased.");
             }

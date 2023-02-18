@@ -30,7 +30,7 @@ public class ProductWebResource {
         return productService.createProduct(product);
     }
 
-    @PostMapping("/purchase")
+    @PutMapping("/purchase")
     public ResponseEntity<String> purchase(@RequestParam String id) {
         return productService.purchase(id);
     }
