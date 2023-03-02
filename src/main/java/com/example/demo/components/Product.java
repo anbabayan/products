@@ -1,11 +1,16 @@
-package com.example.demo.product;
+package com.example.demo.components;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+//using mongoDB
+@Document
 public class Product {
+    @Id
     private String productId;
     private String name;
     private Long price;
     private boolean isPurchased;
-
 
     public Product() {
     }

@@ -1,10 +1,12 @@
-package com.example.demo.product;
+package com.example.demo.services;
 
+import com.example.demo.components.Product;
+import com.example.demo.repository.ProductsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,19 +14,17 @@ import java.util.List;
  */
 @Service
 public class ProductService {
-    public List<Product> products = new ArrayList<>();
+    @Autowired
+    private ProductsRepository productsRepository;
 
     public ProductService() {
-        products.add(new Product("1P56", "Product1", 300L));
-        products.add(new Product("1P76", "Product2", 700L));
-        products.add(new Product("1P34", "Product3", 500L));
     }
 
     /**
      * Getting all the products.
      */
     public List<Product> getProducts() {
-        return products;
+        return productsRepository.findAll();
     }
 
     /**
@@ -36,8 +36,8 @@ public class ProductService {
         if (product == null) {
             return ResponseEntity.badRequest().body("Product is not provided.");
         }
-        products.add(product);
-        if (getById(product.getProductId()) != null) {
+        productsRepository.save(product);
+        if (productsRepository.findById(product.getProductId()).isPresent()) {
             return ResponseEntity.ok().body("The product with id " + product.getProductId() + " is successfully created.");
         } else {
             return ResponseEntity.internalServerError().body("Failed to create a product");
@@ -72,12 +72,12 @@ public class ProductService {
      * @param id of the product to be deleted
      */
     public ResponseEntity<String> deleteProduct(String id) {
-        if (getById(id) == null) {
+        if (productsRepository.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
-            products.removeIf(product -> product.getProductId().equals(id));
+            productsRepository.deleteById(id);
         }
-        if (getById(id) == null) {
+        if (productsRepository.findById(id).isEmpty()) {
             return ResponseEntity.ok().body("The product with id " + id + " is deleted.");
         } else {
             return ResponseEntity.internalServerError().body("Failed to delete the product with id: " + id);
@@ -90,30 +90,17 @@ public class ProductService {
      * @param id of the product to be purchased
      */
     public ResponseEntity<String> purchase(String id) {
-        Product product = getById(id);
-        if (product == null) {
+        if (!productsRepository.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         } else {
+            Product product = productsRepository.findById(id).get();
             if (!product.isPurchased()) {
                 product.setPurchased(true);
+                productsRepository.save(product);
                 return ResponseEntity.ok().body("The product is successfully purchased.");
             } else {
                 return ResponseEntity.badRequest().body("Product is already purchased.");
             }
         }
-    }
-
-    /**
-     * Getting the product by id.
-     *
-     * @param id of the product
-     */
-    public Product getById(String id) {
-        for (Product product : products) {
-            if (product.getProductId().equals(id)) {
-                return product;
-            }
-        }
-        return null;
     }
 }
