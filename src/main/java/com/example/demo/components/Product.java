@@ -3,9 +3,11 @@ package com.example.demo.components;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
 //using mongoDB
 @Document
-public class Product {
+public class Product  implements Serializable {
     @Id
     private String productId;
     private String name;
